@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<title>Defence Alert | Military News Briefing</title>
+<style>
+:root{--bg:#0b1220;--card:#142137;--border:#2b3a50;--text:#eef4ff;--muted:#aab8cc;--gold:#e6b84b;--blue:#60a5fa}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;line-height:1.6}
+header{background:#101b2d;border-bottom:1px solid var(--border);padding:22px 16px}
+.wrap{width:min(100% - 28px,950px);margin:auto}
+h1{margin:0;color:var(--gold);font-size:27px}
+h2{line-height:1.35}
+.subtitle,.muted,.meta{color:var(--muted)}
+.subtitle{font-size:14px}
+main{padding:18px 0 32px}
+.controls{display:grid;gap:10px;margin:16px 0}
+input,button{font:inherit;padding:12px;border-radius:9px;border:1px solid var(--border)}
+input{background:var(--card);color:var(--text);width:100%}
+button{background:var(--gold);color:#101b2d;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.65;cursor:wait}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.filters button{font-size:13px}
+.filters button.active{background:var(--blue)}
+.status{background:#101b2d;padding:12px;border-radius:9px;color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+.news-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin:14px 0;overflow-wrap:anywhere}
+.news-card h3{line-height:1.45;margin:8px 0}
+.summary{color:#d1dbea;font-size:14px}
+.tag{color:var(--gold);font-size:11px;font-weight:bold;letter-spacing:.8px;text-transform:uppercase}
+.meta{font-size:12px}
+.news-card details{border-top:1px solid var(--border);margin-top:14px;padding-top:12px}
+.news-card summary{color:var(--gold);cursor:pointer;font-weight:bold}
+.detail h4{color:var(--gold);margin:15px 0 4px}
+a{color:var(--gold);overflow-wrap:anywhere}
+.notice{background:#101b2d;border-left:3px solid var(--gold);padding:11px;font-size:13px}
+.empty{padding:15px 0}
+.search-links a{display:inline-block;margin:5px 10px 5px 0}
+footer{color:var(--muted);font-size:12px;padding:18px 0 30px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>🛡️ DEFENCE ALERT</h1>
+  <p class="subtitle">Indian Defence • Para SF / Special Forces • J&K Security • World Military • Defence Tech & Cyber</p>
+  <p class="subtitle">Public news briefing | Simple English + Roman Hindi guidance</p>
+</div></header>
+<main class="wrap">
+  <h2>Latest Defence News</h2>
+  <p class="muted">Search headlines, filter categories, check publication time and open the original report.</p>
+  <div class="controls">
+    <input id="search" type="search" placeholder="Search Army, Para SF, J&K, drones..." aria-label="Search news">
+    <button id="refresh" type="button">↻ Refresh News</button>
+  </div>
+  <div class="filters" id="filters">
+    <button class="active" data-category="all">All News</button>
+    <button data-category="india">Indian Defence</button>
+    <button data-category="sf">Para SF / Special Forces</button>
+    <button data-category="jk">J&amp;K Security</button>
+    <button data-category="world">World Military</button>
+    <button data-category="tech">Defence Tech / Cyber</button>
+  </div>
+  <p class="status" id="status" role="status" aria-live="polite">Ready to load news.</p>
+  <section id="newsList" aria-label="Defence news"></section>
+
+  <h2>Full Event Briefing Guide</h2>
+  <article class="news-card">
+    <h3>Har event ko is tarah samjhein</h3>
+    <p><b>What:</b> Kya hua?</p>
+    <p><b>When:</b> Event kab hua? Publication date/time alag se dikhaya jayega.</p>
+    <p><b>Where:</b> Kahan hua, agar source mein diya ho.</p>
+    <p><b>Who:</b> Kaun involved tha?</p>
+    <p><b>Why:</b> Officially stated reason kya tha?</p>
+    <p><b>Confirmed facts:</b> Source se milne wali reported details.</p>
+    <p><b>What's next:</b> Officially announced next step; possible developments ko speculation ke taur par alag rakhein.</p>
+    <p class="notice">Missing details ko guess nahi kiya jayega. Operationally sensitive, unverified claims ko confirmed fact na samjhein. Important claims ko original report/official statement se verify karein.</p>
+  </article>
+</main>
+<footer class="wrap">Independent news reader. External feeds may be unavailable or delayed. This page does not guarantee breaking alerts or background push notifications.</footer>
+<script>
+"use strict";
+
+const FEEDS = {
+  india: ["India Ministry Defence Army", "site:pib.gov.in Ministry of Defence India"],
+  sf: ["India Para SF Special Forces military news"],
+  jk: ["Jammu Kashmir security Army terrorism news"],
+  world: ["world military operations defence news"],
+  tech: ["military defence technology cyber security India"]
+};
+const categoryNames = {
+  india:"Indian Defence", sf:"Para SF / Special Forces",
+  jk:"J&K Security", world:"World Military", tech:"Defence Tech / Cyber"
+};
+const list = document.getElementById("newsList");
+const statusBox = document.getElementById("status");
+const searchBox = document.getElementById("search");
+const refreshButton = document.getElementById("refresh");
+let allNews = [];
+let activeCategory = "all";
+let loading = false;
+
+function makeEl(tag, text, className) {
+  const node = document.createElement(tag);
+  if (text !== undefined) node.textContent = text;
+  if (className) node.className = className;
+  return node;
+}
+function googleSearchUrl(query) {
+  return "https://news.google.com/search?q=" + encodeURIComponent(query) +
+    "&hl=en-IN&gl=IN&ceid=IN:en";
+}
+function rssUrl(query) {
+  return "https://news.google.com/rss/search?q=" + encodeURIComponent(query) +
+    "&hl=en-IN&gl=IN&ceid=IN:en";
+}
+function cleanDescription(value) {
+  const doc = new DOMParser().parseFromString(value || "", "text/html");
+  return (doc.body.textContent || "").replace(/\s+/g, " ").trim().slice(0, 900);
+}
+function formatDate(value) {
+  if (!value) return "Publication time not provided";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "Publication time not provided";
+  return d.toLocaleString("en-IN", {dateStyle:"medium", timeStyle:"short"});
+}
+async function fetchWithTimeout(url, ms=10000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(url, {signal:controller.signal, cache:"no-store"});
+  } finally {
+    clearTimeout(timer);
+  }
+}
+async function fetchFeed(category, query) {
+  const rss = rssUrl(query);
+  // Try RSS-to-JSON first; if blocked or unavailable, try a public CORS proxy.
+  try {
+    const endpoint = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(rss);
+    const response = await fetchWithTimeout(endpoint, 9000);
+    if (!response.ok) throw new Error("RSS-to-JSON HTTP " + response.status);
+    const data = await response.json();
+    if (data.status !== "ok" || !Array.isArray(data.items)) throw new Error("RSS-to-JSON feed error");
+    return data.items.map(item => ({
+      title: item.title || "",
+      description: cleanDescription(item.description),
+      link: item.link || "",
+      published: item.pubDate || "",
+      category
+    }));
+  } catch (e) {
+    const endpoint = "https://api.allorigins.win/raw?url=" + encodeURIComponent(rss);
+    const response = await fetchWithTimeout(endpoint, 9000);
+    if (!response.ok) throw new Error("RSS proxy HTTP " + response.status);
+    const xml = new DOMParser().parseFromString(await response.text(), "application/xml");
+    if (xml.querySelector("parsererror")) throw new Error("RSS XML parse error");
+    return Array.from(xml.querySelectorAll("item")).map(item => ({
+      title: item.querySelector("title")?.textContent || "",
+      description: cleanDescription(item.querySelector("description")?.textContent || ""),
+      link: item.querySelector("link")?.textContent || "",
+      published: item.querySelector("pubDate")?.textContent || "",
+      category
+    }));
+  }
+}
+function renderFallbackLinks(target) {
+  const box = makeEl("div", "", "search-links");
+  box.append(makeEl("p", "Live feed connect nahi hui. Neeche links se latest headlines khol sakte ho."));
+  const pairs = activeCategory === "all"
+    ? Object.entries(FEEDS)
+    : [[activeCategory, FEEDS[activeCategory] || []]];
+  pairs.forEach(([cat, queries]) => queries.forEach(query => {
+    const p = document.createElement("p");
+    const a = makeEl("a", "Search " + (categoryNames[cat] || cat) + " ↗");
+    a.href = googleSearchUrl(query);
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    p.append(a);
+    box.append(p);
+  }));
+  target.append(box);
+}
+function renderNews() {
+  list.replaceChildren();
+  const q = searchBox.value.trim().toLowerCase();
+  const filtered = allNews.filter(item =>
+    (activeCategory === "all" || item.category === activeCategory) &&
+    (item.title + " " + item.description).toLowerCase().includes(q)
+  );
+  if (!filtered.length) {
+    list.append(makeEl("div", "", "empty"));
+    renderFallbackLinks(list);
+    return;
+  }
+  filtered.forEach(item => {
+    const card = makeEl("article", "", "news-card");
+    card.append(makeEl("div", categoryNames[item.category] || item.category, "tag"));
+    card.append(makeEl("h3", item.title || "Headline unavailable"));
+    card.append(makeEl("p", item.description || "Summary unavailable. Original report kholo.", "summary"));
+    card.append(makeEl("p", "Published: " + formatDate(item.published), "meta"));
+    const details = makeEl("details");
+    details.append(makeEl("summary", "📖 Full briefing"));
+    const detail = makeEl("div", "", "detail");
+    [
+      ["What happened?", item.title || "Report mein nahi diya gaya."],
+      ["When?", "Upar publication time diya hai. Event ka exact time alag hota hai aur source mein confirm hona chahiye."],
+      ["Where?", "Original report mein jagah verify karein; headline se location assume na karein."],
+      ["Who?", "Involved parties ko original report/official statement se verify karein."],
+      ["Why?", "Sirf source mein stated reason ko confirmed maana jayega."],
+      ["Confirmed facts", item.description || "Summary available nahi hai; original source check karein."],
+      ["What's next?", "Feed future plans confirm nahi karti. Officially announced next steps hi confirmed hain."]
+    ].forEach(([heading, body]) => {
+      detail.append(makeEl("h4", heading));
+      detail.append(makeEl("p", body));
+    });
+    const sourceP = document.createElement("p");
+    if (item.link && /^https?:\/\//i.test(item.link)) {
+      const a = makeEl("a", "Original report kholo ↗");
+      a.href = item.link; a.target = "_blank"; a.rel = "noopener noreferrer";
+      sourceP.append(a);
+    } else sourceP.textContent = "Original source link unavailable.";
+    detail.append(sourceP);
+    detail.append(makeEl("p", "Headline/summary feed se aate hain; important claims ko original report se verify karein.", "notice"));
+    details.append(detail); card.append(details); list.append(card);
+  });
+}
+async function loadNews() {
+  if (loading) return;
+  loading = true;
+  refreshButton.disabled = true;
+  statusBox.textContent = "News load ho rahi hai (maximum wait per feed 9 seconds)...";
+  const tasks = Object.entries(FEEDS).flatMap(([cat, queries]) =>
+    queries.map(query => fetchFeed(cat, query))
+  );
+  // Each request has its own timeout, so a failed feed cannot leave the page loading forever.
+  const results = await Promise.allSettled(tasks);
+  const items = results.filter(r => r.status === "fulfilled").flatMap(r => r.value);
+  const unique = new Map();
+  items.forEach(item => {
+    if (item.title && item.link && !unique.has(item.link)) unique.set(item.link, item);
+  });
+  allNews = Array.from(unique.values()).sort((a,b) =>
+    new Date(b.published || 0) - new Date(a.published || 0)
+  );
+  const failed = results.filter(r => r.status === "rejected").length;
+  statusBox.textContent = allNews.length
+    ? `${allNews.length} headlines loaded. ${failed ? failed + " feed requests failed." : ""}`
+    : "Live news feed connect nahi hui. Category search links neeche available hain.";
+  renderNews();
+  refreshButton.disabled = false;
+  loading = false;
+}
+document.querySelectorAll("#filters button").forEach(button => {
+  button.addEventListener("click", () => {
+    activeCategory = button.dataset.category;
+    document.querySelectorAll("#filters button").forEach(b => b.classList.toggle("active", b === button));
+    renderNews();
+  });
+});
+searchBox.addEventListener("input", renderNews);
+refreshButton.addEventListener("click", loadNews);
+loadNews();
+</script>
+</body>
+</html>
