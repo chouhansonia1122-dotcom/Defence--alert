@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1220">
+  <title>Defence Alert | Military News</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background:#0b1220; color:#eef4ff; margin:0; font-family:Arial,sans-serif; }
+    header { padding:24px 16px; background:#101b2d; border-bottom:1px solid #2b3a50; }
+    header h1 { margin:0; color:#e6b84b; }
+    header p { color:#aab8cc; }
+    main { max-width:1000px; width:calc(100% - 28px); margin:20px auto; }
+    .controls { display:grid; gap:10px; margin:18px 0; }
+    input,select,button { padding:12px; border-radius:8px; border:1px solid #40516b; }
+    input,select { background:#142137; color:#eef4ff; width:100%; }
+    button { background:#e6b84b; color:#101b2d; font-weight:bold; cursor:pointer; }
+    .filters { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+    .filters button { padding:9px 12px; }
+    .filters button.active { background:#60a5fa; }
+    .status { color:#aab8cc; font-size:14px; margin:15px 0; }
+    .news-card { background:#142137; border:1px solid #2b3a50; border-radius:14px; padding:16px; margin:14px 0; overflow-wrap:anywhere; }
+    .news-card h3 { line-height:1.45; }
+    .news-card p { line-height:1.65; }
+    .tag { color:#e6b84b; font-size:12px; font-weight:bold; }
+    .meta { color:#aab8cc; font-size:12px; }
+    .news-card a { color:#e6b84b; }
+    .news-card details { border-top:1px solid #2b3a50; padding-top:10px; }
+    .news-card summary { cursor:pointer; color:#e6b84b; font-weight:bold; }
+    .note { background:#101b2d; padding:12px; border-left:3px solid #e6b84b; font-size:13px; }
+    footer { color:#aab8cc; padding:20px; text-align:center; font-size:12px; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>🛡️ DEFENCE ALERT</h1>
+  <p>Indian Defence • Special Forces • J&K Security • World Military</p>
+  <p>Military news briefing — Roman Hindi friendly</p>
+</header>
+
+<main>
+  <h2>Latest Defence News</h2>
+  <p>Headlines, available summaries aur original reports ek jagah.</p>
+
+  <div class="controls">
+    <input id="search" type="search" placeholder="News search karo...">
+    <button id="refresh">🔄 Refresh News</button>
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="active" data-category="all">All News</button>
+    <button data-category="india">Indian Defence</button>
+    <button data-category="sf">Special Forces</button>
+    <button data-category="j&k">J&K Security</button>
+    <button data-category="world">World Military</button>
+    <button data-category="tech">Defence Tech & Cyber</button>
+  </div>
+
+  <p class="status" id="status" role="status" aria-live="polite">
+    News load ho rahi hai...
+  </p>
+  <section id="newsList" aria-label="Latest news"></section>
+
+  <h2>Har event ko kaise samjhein?</h2>
+  <article class="news-card">
+    <p><strong>What:</strong> Kya hua?</p>
+    <p><strong>When:</strong> Event ki date/time, agar report mein diya ho.</p>
+    <p><strong>Where:</strong> Event ki jagah, agar confirm ho.</p>
+    <p><strong>Who:</strong> Kaun involved tha?</p>
+    <p><strong>Why:</strong> Officially bataya gaya reason.</p>
+    <p><strong>What's next:</strong> Officially announced next step aur alag se labelled analysis.</p>
+    <p class="note">Publication time aur event time alag ho sakte hain. Jo detail source mein nahi hogi, use “Report mein nahi diya gaya” kaha jayega.</p>
+  </article>
+</main>
+
+<footer>
+  Independent news reader. Official statements aur original reports ko priority dein.
+  Headlines aur summaries ko original source par verify karein.
+</footer>
+
+<script>
+const categories = {
+  india: [
+    "India defence Army Ministry of Defence India",
+    "site:pib.gov.in Ministry of Defence India"
+  ],
+  sf: [
+    "India special forces Para SF military news"
+  ],
+  "j&k": [
+    "Jammu Kashmir security Army counter terrorism news"
+  ],
+  world: [
+    "world military operations defence news"
+  ],
+  tech: [
+    "military technology cyber security defence India"
+  ]
+};
+
+let allNews = [];
+let activeCategory = "all";
+
+const list = document.getElementById("newsList");
+const statusBox = document.getElementById("status");
+const searchBox = document.getElementById("search");
+
+function cleanText(value) {
+  const div = document.createElement("div");
+  div.innerHTML = value || "";
+  return (div.textContent || div.innerText || "")
+    .replace(/\s+/g, " ").trim();
+}
+
+function googleRss(query) {
+  const url = "https://news.google.com/rss/search?q=" +
+    encodeURIComponent(query) +
+    "&hl=en-IN&gl=IN&ceid=IN:en";
+  return "https://api.rss2json.com/v1/api.json?rss_url=" +
+    encodeURIComponent(url);
+}
+
+async function getFeed(category, query) {
+  const response = await fetch(googleRss(query));
+  if (!response.ok) throw new Error("Feed unavailable");
+
+  const data = await response.json();
+  if (data.status !== "ok" || !Array.isArray(data.items)) {
+    throw new Error("News service returned no feed");
+  }
+
+  return data.items.map(item => ({
+    title: cleanText(item.title),
+    description: cleanText(item.description).slice(0, 900),
+    link: item.link || "",
+    published: item.pubDate || "",
+    category
+  }));
+}
+
+function formatDate(value) {
+  if (!value) return "Publication time not provided";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Publication time not provided";
+  return date.toLocaleString("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  });
+}
+
+function makeElement(tag, className, text) {
+  const el = document.createElement(tag);
+  if (className) el.className = className;
+  if (text !== undefined) el.textContent = text;
+  return el;
+}
+
+function renderNews() {
+  list.replaceChildren();
+
+  const query = searchBox.value.toLowerCase().trim();
+
+  const filtered = allNews.filter(item => {
+    const matchesCategory =
+      activeCategory === "all" || item.category === activeCategory;
+    const matchesSearch =
+      (item.title + " " + item.description).toLowerCase().includes(query);
+    return matchesCategory && matchesSearch;
+  });
+
+  if (!filtered.length) {
+    list.append(makeElement(
+      "p", "status",
+      "Is filter mein abhi news nahi mili. Refresh karo ya doosri category chuno."
+    ));
+    return;
+  }
+
+  filtered.forEach(item => {
+    const card = makeElement("article", "news-card");
+    card.append(makeElement("div", "tag", item.category.toUpperCase()));
+    card.append(makeElement("h3", "", item.title));
+    card.append(makeElement("p", "", item.description || "Summary available nahi hai. Original report kholo."));
+    card.append(makeElement("p", "meta", "Published: " + formatDate(item.published)));
+
+    const details = document.createElement("details");
+    const summary = makeElement("summary", "", "📖 Briefing details");
+    details.append(summary);
+
+    const note = makeElement(
+      "p", "note",
+      "Ye news feed se mila title aur available summary hai. Event ka exact time, location, reason aur next plan tabhi confirm samjhein jab original report ya official statement unhe bataye."
+    );
+    details.append(note);
+
+    const original = makeElement("p", "");
+    const link = makeElement("a", "", "Original news report kholo ↗");
+    link.href = item.link;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    original.append(link);
+    details.append(original);
+    card.append(details);
+    list.append(card);
+  });
+}
+
+async function loadNews() {
+  statusBox.textContent = "News load ho rahi hai...";
+  document.getElementById("refresh").disabled = true;
+
+  const tasks = Object.entries(categories).flatMap(([category, queries]) =>
+    queries.map(query => getFeed(category, query))
+  );
+
+  const results = await Promise.allSettled(tasks);
+  const successful = results
+    .filter(result => result.status === "fulfilled")
+    .flatMap(result => result.value);
+
+  const unique = new Map();
+  successful.forEach(item => {
+    if (item.title && item.link && !unique.has(item.link)) {
+      unique.set(item.link, item);
+    }
+  });
+
+  allNews = [...unique.values()].sort((a, b) =>
+    new Date(b.published || 0) - new Date(a.published || 0)
+  );
+
+  const failedCount = results.filter(r => r.status === "rejected").length;
+
+  statusBox.textContent = allNews.length
+    ? `${allNews.length} news items loaded. Publication time shown where available.` +
+      (failedCount ? " Kuch feeds load nahi hui." : "")
+    : "News load nahi hui. Internet, feed service ya request limit check karo.";
+
+  renderNews();
+  document.getElementById("refresh").disabled = false;
+}
+
+document.querySelectorAll("#filters button").forEach(button => {
+  button.addEventListener("click", () => {
+    activeCategory = button.dataset.category;
+    document.querySelectorAll("#filters button").forEach(b =>
+      b.classList.toggle("active", b === button)
+    );
+    renderNews();
+  });
+});
+
+searchBox.addEventListener("input", renderNews);
+document.getElementById("refresh").addEventListener("click", loadNews);
+
+loadNews();
+</script>
+</body>
+</html>
