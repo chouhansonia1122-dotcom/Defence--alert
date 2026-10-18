@@ -1,0 +1,171 @@
+
+/* ==============================
+   DEFENCE ALERT - STYLE
+   ============================== */
+
+:root {
+  --bg: #0b1220;
+  --card: #142137;
+  --border: #2b3a50;
+  --text: #eef4ff;
+  --muted: #aab8cc;
+  --gold: #e6b84b;
+  --blue: #60a5fa;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+}
+
+.container,
+main {
+  width: min(100% - 28px, 1000px);
+  margin: 0 auto;
+}
+
+h1, h2, h3 {
+  line-height: 1.35;
+}
+
+h1 {
+  color: var(--gold);
+}
+
+a {
+  color: var(--blue);
+}
+
+/* News briefing cards */
+
+.brief-heading {
+  margin: 28px 0 8px;
+  font-size: 23px;
+}
+
+.brief-intro {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 18px;
+}
+
+.brief-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 17px;
+  margin: 14px 0;
+  overflow-wrap: anywhere;
+}
+
+.brief-tag {
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.brief-card h3 {
+  font-size: 19px;
+  margin: 8px 0;
+}
+
+.brief-summary {
+  color: #c3cfde;
+  font-size: 14px;
+}
+
+.brief-meta {
+  background: #101b2d;
+  border-radius: 9px;
+  padding: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.9;
+  margin-top: 12px;
+}
+
+/* Full news details */
+
+.brief-card details {
+  border-top: 1px solid var(--border);
+  margin-top: 15px;
+  padding-top: 12px;
+}
+
+.brief-card summary {
+  color: var(--gold);
+  font-weight: bold;
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+.brief-detail {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.brief-detail h4 {
+  color: var(--gold);
+  margin: 18px 0 4px;
+}
+
+.brief-status {
+  border-left: 3px solid var(--gold);
+  background: #101b2d;
+  padding: 12px;
+  margin-top: 14px;
+  border-radius: 4px;
+}
+
+/* Buttons and filters */
+
+button,
+input,
+select {
+  font: inherit;
+  border-radius: 8px;
+}
+
+button {
+  cursor: pointer;
+  padding: 10px 14px;
+}
+
+input,
+select {
+  max-width: 100%;
+  padding: 10px;
+}
+
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* Mobile display */
+
+@media (max-width: 600px) {
+  .brief-heading {
+    font-size: 20px;
+  }
+
+  .brief-card {
+    padding: 14px;
+  }
+
+  .brief-card h3 {
+    font-size: 17px;
+  }
+}
