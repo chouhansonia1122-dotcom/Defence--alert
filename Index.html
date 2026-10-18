@@ -1,0 +1,196 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>Defence Alert</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b1220;color:#eef4ff;font-family:Arial,sans-serif}
+header{padding:23px 17px;background:#14243a;border-bottom:2px solid #d5ad54}
+header h1{margin:9px 0;font-size:29px}
+header p,.muted{color:#b9c7da;line-height:1.5}
+main{max-width:850px;margin:auto;padding:15px}
+nav{display:flex;gap:8px;overflow-x:auto;padding:7px 0 15px}
+button{cursor:pointer;border:1px solid #40536e;background:#1a2a41;color:white;padding:11px 13px;border-radius:9px;white-space:nowrap}
+button.active,button:hover{background:#285777}
+.card{background:#142239;border:1px solid #2d405b;border-radius:13px;padding:16px;margin:12px 0}
+.card h2,.card h3{margin-top:7px}
+.card p{color:#c5d0e0;line-height:1.6}
+.tag{font-size:11px;letter-spacing:1px;color:#9ee3c1;font-weight:bold}
+a{color:#7dd9ff}
+a:focus,button:focus{outline:2px solid #f0c766}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:9px}
+.tile{background:#192b43;padding:13px;border:1px solid #354963;border-radius:10px;cursor:pointer}
+.tile b{display:block;margin-bottom:6px}
+.hidden{display:none!important}
+footer{text-align:center;color:#9eacc1;padding:22px;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <div>🛡️ DEFENCE ALERT</div>
+  <h1>Stay Alert. Keep Learning.</h1>
+  <p>Defence • Special Forces • AI Technology • Tech Tricks</p>
+</header>
+
+<main>
+  <section class="card">
+    <span class="tag">YOUR DAILY BRIEF</span>
+    <h2>Namaste, Soldier! 🇮🇳</h2>
+    <p>Verified public reporting, military history, useful AI tools and simple technology lessons—all in one place.</p>
+    <p><b>Today's mission:</b> Learn one new thing every day.</p>
+  </section>
+
+  <h3>Choose your section</h3>
+  <div class="grid">
+    <div class="tile" onclick="show('all')"><b>🏠 Home</b>All sections</div>
+    <div class="tile" onclick="show('para')"><b>🪂 Para SF</b>Public news & missions</div>
+    <div class="tile" onclick="show('forces')"><b>⚓ MARCOS & Garud</b>Special Forces</div>
+    <div class="tile" onclick="show('nsg')"><b>🎯 NSG</b>Public updates</div>
+    <div class="tile" onclick="show('ops')"><b>🌍 Military Operations</b>India & world</div>
+    <div class="tile" onclick="show('jammu')"><b>📍 J&K Security</b>Regional news</div>
+    <div class="tile" onclick="show('ai')"><b>🤖 AI Technology</b>Easy learning</div>
+    <div class="tile" onclick="show('tricks')"><b>💡 Tech Tricks</b>Useful shortcuts</div>
+  </div>
+
+  <nav aria-label="News categories">
+    <button class="active" onclick="show('all',this)">All</button>
+    <button onclick="show('para',this)">Para SF</button>
+    <button onclick="show('forces',this)">MARCOS / Garud</button>
+    <button onclick="show('nsg',this)">NSG</button>
+    <button onclick="show('ops',this)">Operations</button>
+    <button onclick="show('jammu',this)">J&K</button>
+    <button onclick="show('ai',this)">AI</button>
+    <button onclick="show('tricks',this)">Tech Tricks</button>
+  </nav>
+
+  <section class="card item para">
+    <span class="tag">INDIAN SPECIAL FORCES</span>
+    <h3>🪂 Para SF</h3>
+    <p>Publicly reported Para Special Forces news, training exercises, equipment, history and officially confirmed missions.</p>
+    <p><a href="https://www.google.com/search?q=Indian+Army+Para+SF+news&tbm=nws" target="_blank" rel="noopener">Latest Para SF news ↗</a></p>
+    <p><a href="https://www.google.com/search?q=Indian+Army+official+Special+Forces" target="_blank" rel="noopener">Official Army information search ↗</a></p>
+  </section>
+
+  <section class="card item forces">
+    <span class="tag">SPECIAL OPERATIONS FORCES</span>
+    <h3>⚓ MARCOS</h3>
+    <p>Indian Navy Marine Commandos: publicly reported exercises, maritime security, history and officially announced developments.</p>
+    <a href="https://www.google.com/search?q=Indian+Navy+MARCOS+news&tbm=nws" target="_blank" rel="noopener">MARCOS public news ↗</a>
+  </section>
+
+  <section class="card item forces">
+    <span class="tag">INDIAN AIR FORCE</span>
+    <h3>🦅 Garud Commando Force</h3>
+    <p>Public reporting about Garud training, exercises, roles and official Indian Air Force announcements.</p>
+    <a href="https://www.google.com/search?q=Indian+Air+Force+Garud+Commando+news&tbm=nws" target="_blank" rel="noopener">Garud public news ↗</a>
+  </section>
+
+  <section class="card item nsg">
+    <span class="tag">COUNTER-TERRORISM FORCE</span>
+    <h3>🎯 National Security Guard (NSG)</h3>
+    <p>Publicly available information about NSG exercises, training, history and officially confirmed events.</p>
+    <a href="https://www.google.com/search?q=National+Security+Guard+NSG+India+news&tbm=nws" target="_blank" rel="noopener">NSG public news ↗</a>
+  </section>
+
+  <section class="card item forces">
+    <span class="tag">GLOBAL SPECIAL FORCES</span>
+    <h3>🌐 Foreign Special Forces</h3>
+    <p>Public news and historical information about special operations units worldwide.</p>
+    <a href="https://www.google.com/search?q=world+special+forces+news&tbm=nws" target="_blank" rel="noopener">World Special Forces news ↗</a>
+  </section>
+
+  <section class="card item ops">
+    <span class="tag">PUBLICLY REPORTED MISSIONS</span>
+    <h3>🌍 Military Operations — India & World</h3>
+    <p>Reports about officially confirmed operations, joint military exercises, peacekeeping, historical missions and international developments.</p>
+    <a href="https://www.google.com/search?q=Indian+military+operations+official+news&tbm=nws" target="_blank" rel="noopener">India military reports ↗</a>
+    <p><a href="https://www.google.com/search?q=international+military+operations+news&tbm=nws" target="_blank" rel="noopener">World military reports ↗</a></p>
+    <p class="muted">Reports may be incomplete or developing. Confirm important claims through official statements and trusted news outlets.</p>
+  </section>
+
+  <section class="card item ops">
+    <span class="tag">DEFENCE NEWS</span>
+    <h3>🇮🇳 Indian Army & Defence Technology</h3>
+    <p>Military exercises, equipment acquisitions, defence research, communications technology and official announcements.</p>
+    <a href="https://pib.gov.in/" target="_blank" rel="noopener">Press Information Bureau ↗</a>
+    <p><a href="https://www.mod.gov.in/" target="_blank" rel="noopener">Ministry of Defence ↗</a></p>
+    <p><a href="https://www.drdo.gov.in/" target="_blank" rel="noopener">DRDO official website ↗</a></p>
+  </section>
+
+  <section class="card item jammu">
+    <span class="tag">JAMMU & KASHMIR</span>
+    <h3>📍 J&K Security & Terrorism News</h3>
+    <p>Public reporting on security incidents, counter-terror operations, official briefings and regional developments.</p>
+    <a href="https://www.google.com/search?q=Jammu+Kashmir+security+terrorism+news&tbm=nws" target="_blank" rel="noopener">Latest J&K reports ↗</a>
+    <p><a href="https://pib.gov.in/" target="_blank" rel="noopener">Check official announcements ↗</a></p>
+    <p class="muted">This section opens news searches; it does not verify reports automatically or provide live tactical intelligence.</p>
+  </section>
+
+  <section class="card item ai">
+    <span class="tag">AI LEARNING — LESSON 1</span>
+    <h3>🤖 AI ko sahi instruction kaise dein?</h3>
+    <p>AI ko clear prompt do: task + language + detail + example.</p>
+    <p><b>Try this prompt:</b></p>
+    <p>"Explain artificial intelligence in simple Roman Hindi with one daily-life example and three English words."</p>
+    <p><b>English word:</b> Prompt = instruction jo hum AI ko dete hain.</p>
+    <a href="https://chatgpt.com/" target="_blank" rel="noopener">Practise with ChatGPT ↗</a>
+  </section>
+
+  <section class="card item ai">
+    <span class="tag">USEFUL AI TOOLS</span>
+    <h3>🧠 AI for learning and creativity</h3>
+    <p>AI ko English practice, computer learning, idea generation aur creative projects ke liye use karo. Important facts ko reliable sources se verify karo.</p>
+    <a href="https://ai.google/" target="_blank" rel="noopener">Explore Google AI ↗</a>
+    <p><a href="https://chatgpt.com/" target="_blank" rel="noopener">Open ChatGPT ↗</a></p>
+  </section>
+
+  <section class="card item tricks">
+    <span class="tag">EASY TECH TRICK — LESSON 1</span>
+    <h3>🔎 Search smarter</h3>
+    <p>Search mein quotation marks use karne se exact phrase wale results dhoondhne mein madad milti hai.</p>
+    <p><b>Example:</b> "artificial intelligence basics"</p>
+    <p><b>English word:</b> Shortcut = kaam jaldi karne ka tareeka.</p>
+  </section>
+
+  <section class="card item tricks">
+    <span class="tag">CYBERSECURITY BASICS</span>
+    <h3>🔐 Online safety</h3>
+    <p>Unique passwords rakho, two-factor authentication enable karo aur apna OTP kisi ko mat batao.</p>
+    <a href="https://www.cert-in.org.in/" target="_blank" rel="noopener">CERT-In security resources ↗</a>
+  </section>
+
+  <section class="card item tricks">
+    <span class="tag">DAILY LEARNING</span>
+    <h3>📚 Aaj ki English practice</h3>
+    <p><b>Sentence:</b> "I learn something new every day."</p>
+    <p><b>Meaning:</b> Main har roz kuch naya seekhta hoon.</p>
+    <p>Is sentence ko teen baar bolkar practice karo.</p>
+  </section>
+
+  <section class="card">
+    <h3>⚠️ Important information</h3>
+    <p>Ye first version public news sources aur search links deta hai. Ye abhi automatic live feed, background monitoring ya push notifications provide nahi karta. Sensitive military information ya non-public operational details ke liye ise use na karein.</p>
+  </section>
+</main>
+
+<footer>DEFENCE ALERT • Learn • Verify • Stay Informed</footer>
+
+<script>
+function show(category,button){
+  document.querySelectorAll('.item').forEach(function(card){
+    card.classList.toggle('hidden',
+      category!=='all' && !card.classList.contains(category));
+  });
+  document.querySelectorAll('nav button').forEach(function(b){
+    b.classList.remove('active');
+  });
+  if(button) button.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
